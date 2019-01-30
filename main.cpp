@@ -90,7 +90,7 @@ std::unique_ptr<DataSource> get_data_source(std::vector<std::string> args) {
         return nullptr;
       }
     }
-    return std::make_unique<RandomNormalDataSource>(mean, stdev, count);
+    return std::make_unique<RandomNormalDataSource>(count ,mean, stdev);
   } else {
     std::cerr << "Unrecognized input option '" << args[0] << "'\n";
     return nullptr;
