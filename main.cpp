@@ -1,23 +1,24 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "data_source.h"
 
-// Parse command line arguments. Here are some command lines, assuming that the
-// output program is named "stats". That's what the Makefile in this project
-// should produce, but if you're running from an IDE like Visual Studio or
-// XCode, you might prefer the version in the 'prompt-args' branch.
+// Parse command line arguments. To work nicely with IDEs, the first thing
+// `main()` does is prompt you to type a line of arguments, separated by spaces.
+// The 'master' branch has more typical command-line behavior, but that's harder
+// to use with IDEs like Visual Studio or XCode.
 //
-// Sample command lines:
+// Sample command lines, typed as the first line of user input:
 //
-//   stats --stdin
-//   stats --stdin --prompt="Enter datum"
-//   stats --file=data.txt
-//   stats --csv=data.csv --column=3
-//   stats --random-normal --mean=4.0 --stdev=0.5 --count=10
+//   --stdin
+//   --stdin --prompt="Enter datum"
+//   --file=data.txt
+//   --csv=data.csv --column=3
+//   --random-normal --mean=4.0 --stdev=0.5 --count=10
 //
 // Just look at the strings, comparing to valid inputs.  There will be lots of
 // if/else-if statements and substring comparisons.
@@ -96,12 +97,30 @@ std::unique_ptr<DataSource> get_data_source(std::vector<std::string> args) {
   }
 }
 
-int main(int argc, char** argv) {
-  // Parse command line arguments.
+std::vector<std::string> get_arguments() {
+  std::string command_line;
+  std::cout << "Enter command arguments, e.g.\n"
+            << "   --stdin\n"
+            << "   --stdin --prompt=MyPrompt\n"
+            << "   --file=data.txt\n"
+            << "   --csv=data.csv --column=3\n"
+            << "   --random-normal --mean=4.0 --stdev=0.5 --count=10\n";
+  std::getline(std::cin, command_line);
   std::vector<std::string> args;
-  for (int i = 1; i < argc; i++) {
-    args.push_back(argv[i]);
+  std::istringstream iss(command_line);
+  for (;;) {
+    std::string arg;
+    if (iss >> arg) {
+      args.push_back(arg);
+    } else {
+      return args;
+    }
   }
+}
+
+int main() {
+  // Parse command line arguments.
+  std::vector<std::string> args = get_arguments();
   std::unique_ptr<DataSource> data_source = get_data_source(args);
   if (!data_source) {
     std::cerr << "Bad arguments\n";
